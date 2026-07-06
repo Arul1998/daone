@@ -1,10 +1,6 @@
-<main class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-  <div class="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-    <header class="flex items-center justify-between">
-      <span class="text-lg font-semibold tracking-tight text-slate-900">DAOne</span>
-    </header>
-
-    <section class="flex flex-1 flex-col items-center justify-center py-12 text-center sm:py-16">
+<div class="bg-gradient-to-b from-slate-50 to-slate-100">
+  <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <section class="flex flex-col items-center py-12 text-center sm:py-16">
       <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
         DA<span class="text-blue-600">One</span>
       </h1>
@@ -15,13 +11,14 @@
 
       <div class="mt-8 flex w-full max-w-sm flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center">
         <a
-          href="#"
+          routerLink="/register"
           class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-base"
         >
           Get Started
         </a>
         <a
-          href="#"
+          routerLink="/"
+          fragment="learn-more"
           class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-base"
         >
           Learn More
@@ -29,8 +26,25 @@
       </div>
     </section>
 
-    <footer class="pb-4 text-center text-xs text-slate-500 sm:text-sm">
+    <section id="learn-more" class="border-t border-slate-200 py-12 sm:py-16">
+      <h2 class="text-center text-2xl font-semibold text-slate-900 sm:text-3xl">
+        What you can organize
+      </h2>
+      <p class="mx-auto mt-3 max-w-2xl text-center text-slate-600">
+        Keep track of the details that matter most — securely and in one place.
+      </p>
+
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+        @for (item of highlights; track item) {
+          <li class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+            {{ item }}
+          </li>
+        }
+      </ul>
+    </section>
+
+    <footer class="pb-8 text-center text-xs text-slate-500 sm:text-sm">
       Secure life continuity — no passwords or bank logins stored.
     </footer>
   </div>
-</main>
+</div>

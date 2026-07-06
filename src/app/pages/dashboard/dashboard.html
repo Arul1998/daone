@@ -1,0 +1,26 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <header>
+      <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Dashboard</h1>
+      <p class="mt-2 text-sm text-slate-600 sm:text-base">
+        Your life continuity overview will appear here.
+      </p>
+    </header>
+
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      @for (card of summaryCards; track card.title) {
+        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-slate-500">{{ card.title }}</p>
+          <p class="mt-2 text-2xl font-semibold text-slate-900">{{ card.value }}</p>
+          <p class="mt-1 text-xs text-slate-500">{{ card.note }}</p>
+        </div>
+      }
+    </div>
+
+    <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+      <p class="text-sm text-slate-600">
+        Authentication is not connected yet. This is a placeholder dashboard for Step 2.
+      </p>
+    </div>
+  </div>
+</div>
