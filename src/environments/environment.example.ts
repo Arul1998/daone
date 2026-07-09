@@ -1,14 +1,17 @@
 import { Environment } from './environment.model';
 
 /**
- * Copy this file to environment.ts and environment.prod.ts,
- * then replace the placeholder values with your Supabase project settings.
+ * Local development config — this file is gitignored.
+ *
+ * Setup:
+ * 1. Copy this file to environment.ts and environment.prod.ts
+ * 2. Replace placeholders with your Supabase project settings
  *
  * Supabase Dashboard → Project Settings → API:
  * - Project URL  → supabaseUrl
- * - anon public  → supabaseAnonKey
+ * - anon public    → supabaseAnonKey
  *
- * Never commit real keys to a public repository.
+ * Use only the anon (public) key here. Never put the service_role key in the app.
  */
 export const environment: Environment = {
   production: false,
