@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { EnvironmentService } from '../../core/config/environment.service';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -12,6 +13,7 @@ import { AuthService } from '../../services/auth';
 })
 export class Login {
   private readonly auth = inject(AuthService);
+  private readonly environment = inject(EnvironmentService);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -19,8 +21,14 @@ export class Login {
   protected readonly errorMessage = signal('');
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    email: [
+      this.environment.loginPrefill?.email ?? '',
+      [Validators.required, Validators.email],
+    ],
+    password: [
+      this.environment.loginPrefill?.password ?? '',
+      [Validators.required, Validators.minLength(6)],
+    ],
   });
 
   protected async onSubmit(): Promise<void> {

@@ -1,40 +1,35 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-import { environment } from '../../environments/environment';
-
-const PLACEHOLDER_URL = 'YOUR_SUPABASE_URL';
-const PLACEHOLDER_KEY = 'YOUR_SUPABASE_ANON_KEY';
+import { EnvironmentService } from '../core/config/environment.service';
+import { ENVIRONMENT_PLACEHOLDERS } from '../../environments/environment.placeholders';
 
 @Service()
 export class SupabaseService {
+  private readonly environment = inject(EnvironmentService);
   private client: SupabaseClient | null = null;
 
-  /** True when real Supabase values are set in the environment file. */
   get isConfigured(): boolean {
-    const { supabaseUrl, supabaseAnonKey } = environment;
+    const { url, anonKey } = this.environment.supabase;
 
     return (
-      supabaseUrl.length > 0 &&
-      supabaseAnonKey.length > 0 &&
-      supabaseUrl !== PLACEHOLDER_URL &&
-      supabaseAnonKey !== PLACEHOLDER_KEY
+      url.length > 0 &&
+      anonKey.length > 0 &&
+      url !== ENVIRONMENT_PLACEHOLDERS.supabaseUrl &&
+      anonKey !== ENVIRONMENT_PLACEHOLDERS.supabaseAnonKey
     );
   }
 
-  /**
-   * Returns the shared Supabase client.
-   * Throws a clear error if environment values are still placeholders.
-   */
   getClient(): SupabaseClient {
     if (!this.isConfigured) {
       throw new Error(
-        'Supabase is not configured. Add your project URL and anon key to src/environments/environment.ts',
+        'Supabase is not configured. Copy environment.example.ts to environment.ts and add your project credentials.',
       );
     }
 
     if (!this.client) {
-      this.client = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
+      const { url, anonKey } = this.environment.supabase;
+      this.client = createClient(url, anonKey);
     }
 
     return this.client;

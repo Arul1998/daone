@@ -43,6 +43,7 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Local Supabase config (copy from environment.example.ts)
+# Local environment files (copy from *.example.ts templates)
 src/environments/environment.ts
 src/environments/environment.prod.ts
+src/environments/environment.local.ts

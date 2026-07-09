@@ -2,12 +2,11 @@ import { Environment } from './environment.model';
 import { ENVIRONMENT_PLACEHOLDERS } from './environment.placeholders';
 
 /**
- * Copy to environment.ts (gitignored) for day-to-day development.
- * Supabase Dashboard → Project Settings → API
+ * Copy to environment.prod.ts (gitignored) for production builds.
  */
 export const environment: Environment = {
-  name: 'development',
-  production: false,
+  name: 'production',
+  production: true,
   supabase: {
     url: ENVIRONMENT_PLACEHOLDERS.supabaseUrl,
     anonKey: ENVIRONMENT_PLACEHOLDERS.supabaseAnonKey,
