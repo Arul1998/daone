@@ -25,6 +25,7 @@ export class Navbar implements OnInit {
   protected readonly privateLinks = [
     { label: 'Home', path: '/', exact: true },
     { label: 'Dashboard', path: '/dashboard', exact: false },
+    { label: 'Assets', path: '/assets', exact: false },
   ];
 
   async ngOnInit(): Promise<void> {

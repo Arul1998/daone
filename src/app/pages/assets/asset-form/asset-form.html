@@ -1,0 +1,180 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <h1 class="text-2xl font-bold text-slate-900">
+        {{ isEditMode() ? 'Edit asset' : 'Add asset' }}
+      </h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Record the details that matter for life continuity planning.
+      </p>
+
+      @if (errorMessage()) {
+        <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      @if (successMessage()) {
+        <p class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+          {{ successMessage() }}
+        </p>
+      }
+
+      @if (pageLoading()) {
+        <p class="mt-6 text-sm text-slate-600">Loading asset...</p>
+      } @else {
+        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div>
+            <label for="name" class="block text-sm font-medium text-slate-700">Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <p class="mt-1 text-xs text-red-600">Name is required.</p>
+            }
+          </div>
+
+          <div>
+            <label for="category" class="block text-sm font-medium text-slate-700">Category</label>
+            <select
+              id="category"
+              formControlName="category"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              <option value="" disabled>Select a category</option>
+              @for (category of categories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+            @if (form.controls.category.touched && form.controls.category.invalid) {
+              <p class="mt-1 text-xs text-red-600">Category is required.</p>
+            }
+          </div>
+
+          <div>
+            <label for="description" class="block text-sm font-medium text-slate-700">Description</label>
+            <textarea
+              id="description"
+              rows="3"
+              formControlName="description"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            ></textarea>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="purchase_value" class="block text-sm font-medium text-slate-700">Purchase value</label>
+              <input
+                id="purchase_value"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="purchase_value"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div>
+              <label for="current_value" class="block text-sm font-medium text-slate-700">Current value</label>
+              <input
+                id="current_value"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="current_value"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="currency" class="block text-sm font-medium text-slate-700">Currency</label>
+              <select
+                id="currency"
+                formControlName="currency"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                @for (currency of currencies; track currency) {
+                  <option [value]="currency">{{ currency }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label for="purchase_date" class="block text-sm font-medium text-slate-700">Purchase date</label>
+              <input
+                id="purchase_date"
+                type="date"
+                formControlName="purchase_date"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="ownership_details" class="block text-sm font-medium text-slate-700">Ownership details</label>
+            <textarea
+              id="ownership_details"
+              rows="2"
+              formControlName="ownership_details"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            ></textarea>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="nominee_name" class="block text-sm font-medium text-slate-700">Nominee name</label>
+              <input
+                id="nominee_name"
+                type="text"
+                formControlName="nominee_name"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div>
+              <label for="nominee_contact" class="block text-sm font-medium text-slate-700">Nominee contact</label>
+              <input
+                id="nominee_contact"
+                type="text"
+                formControlName="nominee_contact"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="notes" class="block text-sm font-medium text-slate-700">Notes</label>
+            <textarea
+              id="notes"
+              rows="3"
+              formControlName="notes"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+            <button
+              type="submit"
+              [disabled]="loading()"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {{ loading() ? 'Saving...' : (isEditMode() ? 'Save changes' : 'Create asset') }}
+            </button>
+
+            <a
+              [routerLink]="isEditMode() && assetId() ? ['/assets', assetId()] : ['/assets']"
+              class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Cancel
+            </a>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+</div>

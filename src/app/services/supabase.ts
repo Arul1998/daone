@@ -1,30 +1,25 @@
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 import { EnvironmentService } from '../core/config/environment.service';
-import { ENVIRONMENT_PLACEHOLDERS } from '../../environments/environment.placeholders';
 
-@Service()
+export const SUPABASE_NOT_CONFIGURED_MESSAGE =
+  'Supabase is not configured. Copy environment.example.ts to environment.ts (and environment.production.example.ts to environment.prod.ts for production builds), then add your project URL and anon key from the Supabase Dashboard.';
+
+@Injectable({
+  providedIn: 'root',
+})
 export class SupabaseService {
   private readonly environment = inject(EnvironmentService);
   private client: SupabaseClient | null = null;
 
   get isConfigured(): boolean {
-    const { url, anonKey } = this.environment.supabase;
-
-    return (
-      url.length > 0 &&
-      anonKey.length > 0 &&
-      url !== ENVIRONMENT_PLACEHOLDERS.supabaseUrl &&
-      anonKey !== ENVIRONMENT_PLACEHOLDERS.supabaseAnonKey
-    );
+    return this.environment.isSupabaseConfigured;
   }
 
   getClient(): SupabaseClient {
     if (!this.isConfigured) {
-      throw new Error(
-        'Supabase is not configured. Copy environment.example.ts to environment.ts and add your project credentials.',
-      );
+      throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);
     }
 
     if (!this.client) {

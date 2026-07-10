@@ -1,9 +1,12 @@
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { Profile } from '../models/profile';
+import { getSupabaseErrorMessage } from '../shared/utils/supabase-error';
 import { SupabaseService } from './supabase';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class ProfileService {
   private readonly supabase = inject(SupabaseService);
 
@@ -24,7 +27,7 @@ export class ProfileService {
       .maybeSingle();
 
     if (error) {
-      throw error;
+      throw new Error(getSupabaseErrorMessage(error, 'Could not load your profile.'));
     }
 
     return data;

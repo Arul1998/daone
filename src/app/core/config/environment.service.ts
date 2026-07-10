@@ -1,9 +1,12 @@
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { Environment, EnvironmentName, LoginPrefill } from '../../../environments/environment.model';
+import { ENVIRONMENT_PLACEHOLDERS } from '../../../environments/environment.placeholders';
 import { APP_ENVIRONMENT } from './app-environment.token';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class EnvironmentService {
   private readonly config = inject(APP_ENVIRONMENT);
 
@@ -21,5 +24,16 @@ export class EnvironmentService {
 
   get loginPrefill(): LoginPrefill | null {
     return this.config.features?.prefillLogin ?? null;
+  }
+
+  get isSupabaseConfigured(): boolean {
+    const { url, anonKey } = this.config.supabase;
+
+    return (
+      url.length > 0 &&
+      anonKey.length > 0 &&
+      url !== ENVIRONMENT_PLACEHOLDERS.supabaseUrl &&
+      anonKey !== ENVIRONMENT_PLACEHOLDERS.supabaseAnonKey
+    );
   }
 }
