@@ -31,9 +31,10 @@
               type="text"
               formControlName="name"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.name)"
             />
-            @if (form.controls.name.touched && form.controls.name.invalid) {
-              <p class="mt-1 text-xs text-red-600">Name is required.</p>
+            @if (getAssetFieldError('name', form.controls.name); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
             }
           </div>
 
@@ -43,14 +44,15 @@
               id="category"
               formControlName="category"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.category)"
             >
               <option value="" disabled>Select a category</option>
               @for (category of categories; track category) {
                 <option [value]="category">{{ category }}</option>
               }
             </select>
-            @if (form.controls.category.touched && form.controls.category.invalid) {
-              <p class="mt-1 text-xs text-red-600">Category is required.</p>
+            @if (getAssetFieldError('category', form.controls.category); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
             }
           </div>
 
@@ -61,7 +63,11 @@
               rows="3"
               formControlName="description"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.description)"
             ></textarea>
+            @if (getAssetFieldError('description', form.controls.description); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
@@ -69,24 +75,30 @@
               <label for="purchase_value" class="block text-sm font-medium text-slate-700">Purchase value</label>
               <input
                 id="purchase_value"
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputmode="decimal"
                 formControlName="purchase_value"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.purchase_value)"
               />
+              @if (getAssetFieldError('purchase_value', form.controls.purchase_value); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
 
             <div>
               <label for="current_value" class="block text-sm font-medium text-slate-700">Current value</label>
               <input
                 id="current_value"
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputmode="decimal"
                 formControlName="current_value"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.current_value)"
               />
+              @if (getAssetFieldError('current_value', form.controls.current_value); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
           </div>
 
@@ -97,11 +109,15 @@
                 id="currency"
                 formControlName="currency"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.currency)"
               >
                 @for (currency of currencies; track currency) {
                   <option [value]="currency">{{ currency }}</option>
                 }
               </select>
+              @if (getAssetFieldError('currency', form.controls.currency); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
 
             <div>
@@ -111,7 +127,11 @@
                 type="date"
                 formControlName="purchase_date"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.purchase_date)"
               />
+              @if (getAssetFieldError('purchase_date', form.controls.purchase_date); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
           </div>
 
@@ -122,7 +142,11 @@
               rows="2"
               formControlName="ownership_details"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.ownership_details)"
             ></textarea>
+            @if (getAssetFieldError('ownership_details', form.controls.ownership_details); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
@@ -133,7 +157,11 @@
                 type="text"
                 formControlName="nominee_name"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.nominee_name)"
               />
+              @if (getAssetFieldError('nominee_name', form.controls.nominee_name); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
 
             <div>
@@ -143,7 +171,11 @@
                 type="text"
                 formControlName="nominee_contact"
                 class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.nominee_contact)"
               />
+              @if (getAssetFieldError('nominee_contact', form.controls.nominee_contact); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
             </div>
           </div>
 
@@ -154,7 +186,11 @@
               rows="3"
               formControlName="notes"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.notes)"
             ></textarea>
+            @if (getAssetFieldError('notes', form.controls.notes); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
           </div>
 
           <div class="flex flex-col gap-3 pt-2 sm:flex-row">

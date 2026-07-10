@@ -1,13 +1,32 @@
+import { NgClass } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { ASSET_CATEGORIES, ASSET_CURRENCIES, AssetInput } from '../../../models/asset';
+import {
+  ASSET_CATEGORIES,
+  ASSET_CURRENCIES,
+  ASSET_FIELD_LIMITS,
+  AssetInput,
+} from '../../../models/asset';
 import { AssetService } from '../../../services/asset';
+import {
+  getAssetFieldError,
+  invalidFieldClass,
+} from '../../../shared/validators/asset-form.errors';
+import {
+  emptyToNull,
+  notFutureDate,
+  oneOf,
+  optionalMaxLength,
+  optionalMonetaryValue,
+  parseValidatedMonetaryValue,
+  trimmedRequired,
+} from '../../../shared/validators/asset.validators';
 
 @Component({
   selector: 'app-asset-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [NgClass, ReactiveFormsModule, RouterLink],
   templateUrl: './asset-form.html',
   styleUrl: './asset-form.css',
 })
@@ -25,19 +44,21 @@ export class AssetForm implements OnInit {
   protected readonly successMessage = signal('');
   protected readonly isEditMode = signal(false);
   protected readonly assetId = signal<string | null>(null);
+  protected readonly getAssetFieldError = getAssetFieldError;
+  protected readonly invalidFieldClass = invalidFieldClass;
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(120)]],
-    category: ['', Validators.required],
-    description: [''],
-    purchase_value: [''],
-    current_value: [''],
-    currency: ['GBP', Validators.required],
-    purchase_date: [''],
-    ownership_details: [''],
-    nominee_name: [''],
-    nominee_contact: [''],
-    notes: [''],
+    name: ['', [trimmedRequired(), Validators.maxLength(ASSET_FIELD_LIMITS.name)]],
+    category: ['', [Validators.required, oneOf(ASSET_CATEGORIES)]],
+    description: ['', [optionalMaxLength(ASSET_FIELD_LIMITS.description)]],
+    purchase_value: ['', [optionalMonetaryValue()]],
+    current_value: ['', [optionalMonetaryValue()]],
+    currency: ['GBP', [Validators.required, oneOf(ASSET_CURRENCIES)]],
+    purchase_date: ['', [notFutureDate()]],
+    ownership_details: ['', [optionalMaxLength(ASSET_FIELD_LIMITS.ownership_details)]],
+    nominee_name: ['', [optionalMaxLength(ASSET_FIELD_LIMITS.nominee_name)]],
+    nominee_contact: ['', [optionalMaxLength(ASSET_FIELD_LIMITS.nominee_contact)]],
+    notes: ['', [optionalMaxLength(ASSET_FIELD_LIMITS.notes)]],
   });
 
   async ngOnInit(): Promise<void> {
@@ -51,6 +72,10 @@ export class AssetForm implements OnInit {
   }
 
   protected async onSubmit(): Promise<void> {
+    if (this.loading()) {
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -121,31 +146,15 @@ export class AssetForm implements OnInit {
     return {
       name: raw.name.trim(),
       category: raw.category,
-      description: this.emptyToNull(raw.description),
-      purchase_value: this.parseOptionalNumber(raw.purchase_value),
-      current_value: this.parseOptionalNumber(raw.current_value),
+      description: emptyToNull(raw.description),
+      purchase_value: parseValidatedMonetaryValue(raw.purchase_value),
+      current_value: parseValidatedMonetaryValue(raw.current_value),
       currency: raw.currency,
       purchase_date: raw.purchase_date || null,
-      ownership_details: this.emptyToNull(raw.ownership_details),
-      nominee_name: this.emptyToNull(raw.nominee_name),
-      nominee_contact: this.emptyToNull(raw.nominee_contact),
-      notes: this.emptyToNull(raw.notes),
+      ownership_details: emptyToNull(raw.ownership_details),
+      nominee_name: emptyToNull(raw.nominee_name),
+      nominee_contact: emptyToNull(raw.nominee_contact),
+      notes: emptyToNull(raw.notes),
     };
-  }
-
-  private emptyToNull(value: string): string | null {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
-  }
-
-  private parseOptionalNumber(value: string): number | null {
-    const trimmed = value.trim();
-
-    if (!trimmed) {
-      return null;
-    }
-
-    const parsed = Number(trimmed);
-    return Number.isFinite(parsed) ? parsed : null;
   }
 }

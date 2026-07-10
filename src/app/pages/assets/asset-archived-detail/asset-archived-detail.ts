@@ -8,65 +8,65 @@ import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { formatCurrency } from '../../../shared/utils/currency';
 
 @Component({
-  selector: 'app-asset-detail',
+  selector: 'app-asset-archived-detail',
   imports: [DatePipe, RouterLink, ConfirmDialog],
-  templateUrl: './asset-detail.html',
-  styleUrl: './asset-detail.css',
+  templateUrl: './asset-archived-detail.html',
+  styleUrl: './asset-archived-detail.css',
 })
-export class AssetDetail implements OnInit {
+export class AssetArchivedDetail implements OnInit {
   private readonly assetService = inject(AssetService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   protected readonly asset = signal<Asset | null>(null);
   protected readonly loading = signal(true);
-  protected readonly archiving = signal(false);
+  protected readonly restoring = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
-  protected readonly showArchiveConfirm = signal(false);
+  protected readonly showRestoreConfirm = signal(false);
   protected readonly formatCurrency = formatCurrency;
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id) {
-      await this.router.navigate(['/assets']);
+      await this.router.navigate(['/assets/archived']);
       return;
     }
 
     await this.loadAsset(id);
   }
 
-  protected openArchiveConfirm(): void {
-    this.showArchiveConfirm.set(true);
+  protected openRestoreConfirm(): void {
+    this.showRestoreConfirm.set(true);
   }
 
-  protected closeArchiveConfirm(): void {
-    this.showArchiveConfirm.set(false);
+  protected closeRestoreConfirm(): void {
+    this.showRestoreConfirm.set(false);
   }
 
-  protected async confirmArchive(): Promise<void> {
+  protected async confirmRestore(): Promise<void> {
     const currentAsset = this.asset();
 
     if (!currentAsset) {
       return;
     }
 
-    this.archiving.set(true);
+    this.restoring.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
 
     try {
-      await this.assetService.archive(currentAsset.id);
-      this.successMessage.set('Asset archived successfully.');
-      await this.router.navigate(['/assets']);
+      const restored = await this.assetService.restore(currentAsset.id);
+      this.successMessage.set('Asset restored successfully.');
+      await this.router.navigate(['/assets', restored.id]);
     } catch (error) {
       this.errorMessage.set(
-        error instanceof Error ? error.message : 'Could not archive this asset.',
+        error instanceof Error ? error.message : 'Could not restore this asset.',
       );
-      this.closeArchiveConfirm();
+      this.closeRestoreConfirm();
     } finally {
-      this.archiving.set(false);
+      this.restoring.set(false);
     }
   }
 
@@ -77,20 +77,15 @@ export class AssetDetail implements OnInit {
     try {
       const asset = await this.assetService.getById(id);
 
-      if (!asset || asset.status !== 1) {
-        if (asset?.status === 0) {
-          await this.router.navigate(['/assets/archived', asset.id]);
-          return;
-        }
-
-        await this.router.navigate(['/assets']);
+      if (!asset || asset.status !== 0) {
+        await this.router.navigate(['/assets/archived']);
         return;
       }
 
       this.asset.set(asset);
     } catch (error) {
       this.errorMessage.set(
-        error instanceof Error ? error.message : 'Could not load this asset.',
+        error instanceof Error ? error.message : 'Could not load this archived asset.',
       );
     } finally {
       this.loading.set(false);

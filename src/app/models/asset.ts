@@ -47,4 +47,17 @@ export const ASSET_CATEGORIES = [
   'Other',
 ] as const;
 
-export const ASSET_CURRENCIES = ['GBP', 'USD', 'EUR'] as const;
+export const ASSET_CURRENCIES = ['GBP', 'INR', 'USD', 'EUR'] as const;
+
+export const ASSET_FIELD_LIMITS = {
+  name: 120,
+  description: 1000,
+  ownership_details: 1000,
+  nominee_name: 120,
+  nominee_contact: 200,
+  notes: 5000,
+  monetaryMax: 999999999999.99,
+} as const;
+
+export type AssetCategory = (typeof ASSET_CATEGORIES)[number];
+export type AssetCurrency = (typeof ASSET_CURRENCIES)[number];

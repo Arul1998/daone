@@ -50,10 +50,13 @@ If Supabase is not configured, the app throws a clear runtime error when auth or
 
 ## Supabase migrations
 
-SQL migrations live in `supabase/migrations/`:
+SQL migrations live in `supabase/migrations/`. Apply them **in order**:
 
 1. `20260710120000_create_profiles.sql` — profiles table, RLS, signup trigger, `updated_at` trigger
 2. `20260710120100_create_assets.sql` — assets table, indexes, RLS, archive-friendly update policies
+3. `20260710120200_harden_assets_constraints.sql` — approved categories/currencies, text length limits, monetary bounds
+
+If existing rows violate a new hardening constraint, PostgreSQL will reject that migration. Fix the invalid rows manually, then re-run the migration.
 
 Apply them using one of:
 
@@ -66,7 +69,7 @@ supabase db push
 **Supabase Dashboard**:
 
 1. Open **SQL Editor**
-2. Run each migration file in order (profiles first, then assets)
+2. Run each migration file in order
 
 ## Development commands
 
@@ -86,19 +89,73 @@ supabase db push
 | `npm test` | Unit tests (watch mode) |
 | `npm run test:ci` | Unit tests (single run, for CI) |
 
+### Verification commands
+
+Run these before opening a pull request:
+
+```bash
+npm install
+npm run build:dev
+npm run build
+npm run test:ci
+```
+
+## Asset validation rules
+
+The Angular form and database enforce the same limits:
+
+| Field | Rules |
+|-------|-------|
+| Name | Required, trimmed, max 120 characters |
+| Category | Required, must be an approved category |
+| Purchase value / Current value | Optional, 0 to 999,999,999,999.99 |
+| Currency | Required, one of `GBP`, `INR`, `USD`, `EUR` |
+| Purchase date | Optional, cannot be in the future |
+| Description / Ownership details | Max 1,000 characters |
+| Nominee name | Max 120 characters |
+| Nominee contact | Max 200 characters |
+| Notes | Max 5,000 characters |
+
+Invalid monetary values block submission. They are never silently converted to `null`.
+
+## Currency support
+
+DAOne supports UK and Indian assets with these currencies:
+
+- `GBP`
+- `INR`
+- `USD`
+- `EUR`
+
+Dashboard and asset views format each amount in its own currency. Different currencies are shown separately and are **not** automatically converted or combined into one total.
+
 ## Current features
 
 - Landing page with product overview
 - User registration and login (Supabase Auth)
 - Protected dashboard and navigation
 - Automatic profile creation on signup
-- **Assets MVP**
+- **Assets**
   - List active assets (`/assets`)
   - Add asset (`/assets/new`)
   - View asset details (`/assets/:id`)
   - Edit asset (`/assets/:id/edit`)
   - Archive asset (soft delete via `status = 0`)
-  - Dashboard summary with active count and total current value
+  - View archived assets (`/assets/archived`)
+  - View archived asset details (`/assets/archived/:id`)
+  - Restore archived assets back to active status
+  - Accessible archive/restore confirmation dialogs
+  - Dashboard summary with active count and per-currency totals
+
+## Archived assets and restore flow
+
+1. Open an active asset and choose **Archive asset**
+2. Confirm in the dialog — the asset is hidden from `/assets` but not deleted
+3. Open **View archived assets** from the active assets page
+4. Open an archived asset and choose **Restore asset**
+5. Confirm in the dialog — the asset returns to the active list
+
+Archived assets are never exposed in the normal active assets list.
 
 ## Upcoming features
 
@@ -110,10 +167,24 @@ supabase db push
 
 ## CI
 
-GitHub Actions runs on pushes and pull requests:
+GitHub Actions runs on pushes and pull requests to `main` / `master`.
+
+Workflow file: `.github/workflows/ci.yml`
+
+It runs:
 
 - `npm ci`
-- Development and production builds (using example environment files)
-- Non-watch unit tests
+- `npm run build:dev`
+- `npm run build`
+- `npm run test:ci`
 
-No Supabase secrets are stored in the workflow.
+Environment files are created from safe example templates during CI. No Supabase secrets are stored in the workflow.
+
+### How to check GitHub Actions
+
+1. Open your repository on GitHub
+2. Go to the **Actions** tab
+3. Select the latest **CI** workflow run
+4. Confirm all build and test jobs passed
+
+Outdated runs on the same branch are cancelled automatically via workflow concurrency.
