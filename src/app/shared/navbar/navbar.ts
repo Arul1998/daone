@@ -26,6 +26,10 @@ export class Navbar implements OnInit {
     { label: 'Home', path: '/', exact: true },
     { label: 'Dashboard', path: '/dashboard', exact: false },
     { label: 'Assets', path: '/assets', exact: false },
+    { label: 'Loans', path: '/loans', exact: false },
+    { label: 'Insurance', path: '/insurance', exact: false },
+    { label: 'Contacts', path: '/contacts', exact: false },
+    { label: 'Profile', path: '/profile', exact: false },
   ];
 
   async ngOnInit(): Promise<void> {
