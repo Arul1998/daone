@@ -55,6 +55,10 @@ SQL migrations live in `supabase/migrations/`. Apply them **in order**:
 1. `20260710120000_create_profiles.sql` — profiles table, RLS, signup trigger, `updated_at` trigger
 2. `20260710120100_create_assets.sql` — assets table, indexes, RLS, archive-friendly update policies
 3. `20260710120200_harden_assets_constraints.sql` — approved categories/currencies, text length limits, monetary bounds
+4. `20260712090000_create_loans.sql` — loans table, indexes, RLS, validation constraints
+5. `20260712090100_create_insurance_policies.sql` — insurance policies table, indexes, RLS, validation constraints
+6. `20260712090200_create_trusted_contacts.sql` — trusted contacts table, indexes, RLS, validation constraints
+7. `20260712090300_harden_profiles.sql` — full name length limit for profile editing
 
 If existing rows violate a new hardening constraint, PostgreSQL will reject that migration. Fix the invalid rows manually, then re-run the migration.
 
@@ -100,9 +104,11 @@ npm run build
 npm run test:ci
 ```
 
-## Asset validation rules
+## Validation rules
 
-The Angular form and database enforce the same limits:
+The Angular forms and database enforce the same limits.
+
+**Assets**
 
 | Field | Rules |
 |-------|-------|
@@ -114,6 +120,49 @@ The Angular form and database enforce the same limits:
 | Description / Ownership details | Max 1,000 characters |
 | Nominee name | Max 120 characters |
 | Nominee contact | Max 200 characters |
+| Notes | Max 5,000 characters |
+
+**Loans**
+
+| Field | Rules |
+|-------|-------|
+| Name | Required, trimmed, max 120 characters |
+| Loan type | Required, must be an approved loan type |
+| Lender | Max 200 characters |
+| Principal / Outstanding amount | Optional, 0 to 999,999,999,999.99 |
+| Currency | Required, one of `GBP`, `INR`, `USD`, `EUR` |
+| Interest rate | Optional, 0 to 100, up to two decimals |
+| Start date | Optional, cannot be in the future |
+| End date | Optional, cannot be before the start date |
+| Account reference | Max 200 characters |
+| Notes | Max 5,000 characters |
+
+**Insurance policies**
+
+| Field | Rules |
+|-------|-------|
+| Name | Required, trimmed, max 120 characters |
+| Policy type | Required, must be an approved policy type |
+| Provider | Max 200 characters |
+| Policy number | Max 100 characters |
+| Sum assured / Premium amount | Optional, 0 to 999,999,999,999.99 |
+| Currency | Required, one of `GBP`, `INR`, `USD`, `EUR` |
+| Premium frequency | Optional, must be an approved frequency |
+| Start date | Optional, cannot be in the future |
+| Renewal date | Optional, cannot be before the start date |
+| Nominee name | Max 120 characters |
+| Nominee contact | Max 200 characters |
+| Notes | Max 5,000 characters |
+
+**Trusted contacts**
+
+| Field | Rules |
+|-------|-------|
+| Full name | Required, trimmed, max 120 characters |
+| Relationship | Required, must be an approved relationship |
+| Email | Optional, valid email, max 200 characters |
+| Phone | Max 50 characters |
+| Address | Max 500 characters |
 | Notes | Max 5,000 characters |
 
 Invalid monetary values block submission. They are never silently converted to `null`.
@@ -133,37 +182,53 @@ Dashboard and asset views format each amount in its own currency. Different curr
 
 - Landing page with product overview
 - User registration and login (Supabase Auth)
+- Password reset flow (`/forgot-password` → email link → `/reset-password`)
 - Protected dashboard and navigation
 - Automatic profile creation on signup
-- **Assets**
-  - List active assets (`/assets`)
-  - Add asset (`/assets/new`)
-  - View asset details (`/assets/:id`)
-  - Edit asset (`/assets/:id/edit`)
-  - Archive asset (soft delete via `status = 0`)
-  - View archived assets (`/assets/archived`)
-  - View archived asset details (`/assets/archived/:id`)
-  - Restore archived assets back to active status
+- Profile editing (`/profile`) — update your display name
+- Lazy-loaded routes — each page ships as its own bundle
+- **Assets** (`/assets`), **Loans** (`/loans`), **Insurance** (`/insurance`), and
+  **Trusted contacts** (`/contacts`), each with the same record lifecycle:
+  - List active records
+  - Add record (`/<section>/new`)
+  - View record details (`/<section>/:id`)
+  - Edit record (`/<section>/:id/edit`)
+  - Archive record (soft delete via `status = 0`)
+  - View archived records (`/<section>/archived`) and details (`/<section>/archived/:id`)
+  - Restore archived records back to active status
   - Accessible archive/restore confirmation dialogs
-  - Dashboard summary with active count and per-currency totals
+- Dashboard summary cards: active asset count with per-currency totals, loan count
+  with per-currency outstanding totals, policy count with per-currency sum assured,
+  and trusted contact count
 
-## Archived assets and restore flow
+## Archive and restore flow
 
-1. Open an active asset and choose **Archive asset**
-2. Confirm in the dialog — the asset is hidden from `/assets` but not deleted
-3. Open **View archived assets** from the active assets page
-4. Open an archived asset and choose **Restore asset**
-5. Confirm in the dialog — the asset returns to the active list
+The same flow applies to assets, loans, insurance policies, and trusted contacts:
 
-Archived assets are never exposed in the normal active assets list.
+1. Open an active record and choose **Archive**
+2. Confirm in the dialog — the record is hidden from the active list but not deleted
+3. Open **View archived …** from the active list page
+4. Open an archived record and choose **Restore**
+5. Confirm in the dialog — the record returns to the active list
+
+Archived records are never exposed in the normal active lists. There is no
+hard-delete path: the database has no `delete` policy on any record table.
+
+## Password reset flow
+
+1. Open **Forgot password?** from the login page
+2. Enter your account email — Supabase sends a reset link
+3. The link opens `/reset-password` with a recovery session
+4. Choose a new password and you are signed in again
+
+For the email link to work, add your app URL (e.g. `http://localhost:4200`) to
+**Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**,
+including `/reset-password`.
 
 ## Upcoming features
 
-- Loans
-- Insurance policies
-- Trusted contacts and continuity access
-- Profile editing
-- Password reset flow
+- Continuity access (sharing records with trusted contacts)
+- Reminders for loan end dates and policy renewals
 
 ## CI
 
