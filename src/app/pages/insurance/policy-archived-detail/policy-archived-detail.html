@@ -1,0 +1,129 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <a routerLink="/insurance/archived" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+      ← Back to archived policies
+    </a>
+
+    @if (errorMessage()) {
+      <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (successMessage()) {
+      <p class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+        {{ successMessage() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <div class="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">
+        Loading archived policy...
+      </div>
+    } @else if (policy(); as currentPolicy) {
+      <header class="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-medium text-slate-500">{{ currentPolicy.policy_type }} · Archived</p>
+        <h1 class="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">{{ currentPolicy.name }}</h1>
+
+        @if (currentPolicy.sum_assured !== null) {
+          <p class="mt-3 text-sm text-slate-600">
+            Sum assured:
+            <span class="font-semibold text-slate-900">
+              {{ formatCurrency(currentPolicy.sum_assured, currentPolicy.currency) }}
+            </span>
+          </p>
+        }
+      </header>
+
+      <section class="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-slate-900">Details</h2>
+
+        <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Provider</dt>
+            <dd class="mt-1 text-sm text-slate-700">{{ currentPolicy.provider || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Policy number</dt>
+            <dd class="mt-1 text-sm text-slate-700">{{ currentPolicy.policy_number || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Premium</dt>
+            <dd class="mt-1 text-sm text-slate-700">
+              @if (currentPolicy.premium_amount !== null) {
+                {{ formatCurrency(currentPolicy.premium_amount, currentPolicy.currency) }}
+                @if (currentPolicy.premium_frequency) {
+                  ({{ currentPolicy.premium_frequency }})
+                }
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Start date</dt>
+            <dd class="mt-1 text-sm text-slate-700">
+              @if (currentPolicy.start_date) {
+                {{ currentPolicy.start_date | date: 'mediumDate' }}
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Renewal date</dt>
+            <dd class="mt-1 text-sm text-slate-700">
+              @if (currentPolicy.renewal_date) {
+                {{ currentPolicy.renewal_date | date: 'mediumDate' }}
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Nominee name</dt>
+            <dd class="mt-1 text-sm text-slate-700">{{ currentPolicy.nominee_name || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Nominee contact</dt>
+            <dd class="mt-1 text-sm text-slate-700">{{ currentPolicy.nominee_contact || '—' }}</dd>
+          </div>
+
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Notes</dt>
+            <dd class="mt-1 text-sm text-slate-700">{{ currentPolicy.notes || '—' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          (click)="openRestoreConfirm()"
+          class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Restore policy
+        </button>
+      </div>
+    }
+
+    <app-confirm-dialog
+      [open]="showRestoreConfirm()"
+      titleId="restore-policy-dialog-title"
+      title="Restore this policy?"
+      message="The policy will return to your active insurance list."
+      confirmLabel="Restore policy"
+      cancelLabel="Cancel"
+      [processing]="restoring()"
+      variant="primary"
+      (confirmed)="confirmRestore()"
+      (cancelled)="closeRestoreConfirm()"
+    />
+  </div>
+</div>

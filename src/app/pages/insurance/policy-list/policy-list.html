@@ -1,0 +1,74 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Insurance</h1>
+        <p class="mt-2 text-sm text-slate-600 sm:text-base">
+          Keep life, health, and other policies where your family can find them.
+        </p>
+      </div>
+
+      <a
+        routerLink="/insurance/new"
+        class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        Add policy
+      </a>
+    </header>
+
+    @if (errorMessage()) {
+      <p class="mt-6 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <div class="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">
+        Loading insurance policies...
+      </div>
+    } @else if (policies().length === 0) {
+      <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+        <p class="text-sm text-slate-600">No active insurance policies yet.</p>
+        <a
+          routerLink="/insurance/new"
+          class="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Add your first policy
+        </a>
+      </div>
+    } @else {
+      <div class="mt-6 text-right">
+        <a routerLink="/insurance/archived" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+          View archived policies
+        </a>
+      </div>
+
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (policy of policies(); track policy.id) {
+          <a
+            [routerLink]="['/insurance', policy.id]"
+            class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md"
+          >
+            <p class="text-sm font-medium text-blue-600">{{ policy.policy_type }}</p>
+            <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ policy.name }}</h2>
+
+            @if (policy.provider) {
+              <p class="mt-1 text-sm text-slate-500">{{ policy.provider }}</p>
+            }
+
+            @if (policy.sum_assured !== null) {
+              <p class="mt-3 text-sm text-slate-600">
+                Sum assured:
+                <span class="font-medium text-slate-900">
+                  {{ formatCurrency(policy.sum_assured, policy.currency) }}
+                </span>
+              </p>
+            } @else {
+              <p class="mt-3 text-sm text-slate-500">No sum assured recorded</p>
+            }
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>
