@@ -64,10 +64,4 @@ export function getAssetFieldError(field: AssetFormField, control: AbstractContr
   return 'This field is invalid.';
 }
 
-export function invalidFieldClass(control: AbstractControl): Record<string, boolean> {
-  return {
-    'border-red-500': control.touched && control.invalid,
-    'focus:border-red-500': control.touched && control.invalid,
-    'focus:ring-red-500/20': control.touched && control.invalid,
-  };
-}
+export { invalidFieldClass } from './form-errors';
