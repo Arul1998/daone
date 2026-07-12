@@ -1,0 +1,71 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <a routerLink="/dashboard" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+      ← Back to dashboard
+    </a>
+
+    <div class="mt-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <h1 class="text-2xl font-bold text-slate-900">Profile</h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Update how your name appears across DAOne.
+      </p>
+
+      @if (errorMessage()) {
+        <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      @if (successMessage()) {
+        <p class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+          {{ successMessage() }}
+        </p>
+      }
+
+      @if (pageLoading()) {
+        <p class="mt-6 text-sm text-slate-600">Loading profile...</p>
+      } @else {
+        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
+            <input
+              id="email"
+              type="email"
+              [value]="profile()?.email ?? ''"
+              disabled
+              class="mt-1 w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500"
+            />
+            <p class="mt-1 text-xs text-slate-500">Your login email cannot be changed here.</p>
+          </div>
+
+          <div>
+            <label for="full_name" class="block text-sm font-medium text-slate-700">Full name</label>
+            <input
+              id="full_name"
+              type="text"
+              formControlName="full_name"
+              autocomplete="name"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.full_name)"
+            />
+            @if (form.controls.full_name.touched && form.controls.full_name.invalid) {
+              <p class="mt-1 text-xs text-red-600">
+                Full name must be {{ fullNameMaxLength }} characters or fewer.
+              </p>
+            }
+          </div>
+
+          <div class="pt-2">
+            <button
+              type="submit"
+              [disabled]="saving()"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {{ saving() ? 'Saving...' : 'Save changes' }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+</div>
