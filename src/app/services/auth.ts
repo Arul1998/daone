@@ -10,25 +10,15 @@ export class AuthService {
   private readonly supabase = inject(SupabaseService);
 
   private readonly sessionState = signal<Session | null>(null);
-  private initialized = false;
+  private initPromise: Promise<void> | null = null;
 
   readonly session = this.sessionState.asReadonly();
   readonly user = computed<User | null>(() => this.sessionState()?.user ?? null);
   readonly isLoggedIn = computed(() => this.sessionState() !== null);
 
-  async init(): Promise<void> {
-    if (this.initialized) {
-      return;
-    }
-
-    const client = this.supabase.getClient();
-    const { data } = await client.auth.getSession();
-    this.sessionState.set(data.session);
-    this.initialized = true;
-
-    client.auth.onAuthStateChange((_event, session) => {
-      this.sessionState.set(session);
-    });
+  init(): Promise<void> {
+    this.initPromise ??= this.initialize();
+    return this.initPromise;
   }
 
   async getSession(): Promise<Session | null> {
@@ -49,5 +39,27 @@ export class AuthService {
   async signOut() {
     await this.init();
     return this.supabase.getClient().auth.signOut();
+  }
+
+  async requestPasswordReset(email: string) {
+    await this.init();
+    return this.supabase.getClient().auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+  }
+
+  async updatePassword(password: string) {
+    await this.init();
+    return this.supabase.getClient().auth.updateUser({ password });
+  }
+
+  private async initialize(): Promise<void> {
+    const client = this.supabase.getClient();
+    const { data } = await client.auth.getSession();
+    this.sessionState.set(data.session);
+
+    client.auth.onAuthStateChange((_event, session) => {
+      this.sessionState.set(session);
+    });
   }
 }
