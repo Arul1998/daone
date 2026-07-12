@@ -1,0 +1,219 @@
+<div class="bg-slate-50">
+  <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <h1 class="text-2xl font-bold text-slate-900">
+        {{ isEditMode() ? 'Edit loan' : 'Add loan' }}
+      </h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Record borrowings so nothing is missed in continuity planning.
+      </p>
+
+      @if (errorMessage()) {
+        <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      @if (successMessage()) {
+        <p class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
+          {{ successMessage() }}
+        </p>
+      }
+
+      @if (pageLoading()) {
+        <p class="mt-6 text-sm text-slate-600">Loading loan...</p>
+      } @else {
+        <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div>
+            <label for="name" class="block text-sm font-medium text-slate-700">Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.name)"
+            />
+            @if (getLoanFieldError('name', form.controls.name); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="loan_type" class="block text-sm font-medium text-slate-700">Loan type</label>
+              <select
+                id="loan_type"
+                formControlName="loan_type"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.loan_type)"
+              >
+                <option value="" disabled>Select a loan type</option>
+                @for (loanType of loanTypes; track loanType) {
+                  <option [value]="loanType">{{ loanType }}</option>
+                }
+              </select>
+              @if (getLoanFieldError('loan_type', form.controls.loan_type); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="lender" class="block text-sm font-medium text-slate-700">Lender</label>
+              <input
+                id="lender"
+                type="text"
+                formControlName="lender"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.lender)"
+              />
+              @if (getLoanFieldError('lender', form.controls.lender); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="principal_amount" class="block text-sm font-medium text-slate-700">Principal amount</label>
+              <input
+                id="principal_amount"
+                type="text"
+                inputmode="decimal"
+                formControlName="principal_amount"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.principal_amount)"
+              />
+              @if (getLoanFieldError('principal_amount', form.controls.principal_amount); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="outstanding_amount" class="block text-sm font-medium text-slate-700">Outstanding amount</label>
+              <input
+                id="outstanding_amount"
+                type="text"
+                inputmode="decimal"
+                formControlName="outstanding_amount"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.outstanding_amount)"
+              />
+              @if (getLoanFieldError('outstanding_amount', form.controls.outstanding_amount); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="currency" class="block text-sm font-medium text-slate-700">Currency</label>
+              <select
+                id="currency"
+                formControlName="currency"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.currency)"
+              >
+                @for (currency of currencies; track currency) {
+                  <option [value]="currency">{{ currency }}</option>
+                }
+              </select>
+              @if (getLoanFieldError('currency', form.controls.currency); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="interest_rate" class="block text-sm font-medium text-slate-700">Interest rate (%)</label>
+              <input
+                id="interest_rate"
+                type="text"
+                inputmode="decimal"
+                formControlName="interest_rate"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.interest_rate)"
+              />
+              @if (getLoanFieldError('interest_rate', form.controls.interest_rate); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="start_date" class="block text-sm font-medium text-slate-700">Start date</label>
+              <input
+                id="start_date"
+                type="date"
+                formControlName="start_date"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.start_date)"
+              />
+              @if (getLoanFieldError('start_date', form.controls.start_date); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="end_date" class="block text-sm font-medium text-slate-700">End date</label>
+              <input
+                id="end_date"
+                type="date"
+                formControlName="end_date"
+                class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                [ngClass]="invalidFieldClass(form.controls.end_date)"
+              />
+              @if (getLoanFieldError('end_date', form.controls.end_date); as message) {
+                <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label for="account_reference" class="block text-sm font-medium text-slate-700">Account reference</label>
+            <input
+              id="account_reference"
+              type="text"
+              formControlName="account_reference"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.account_reference)"
+            />
+            @if (getLoanFieldError('account_reference', form.controls.account_reference); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
+          </div>
+
+          <div>
+            <label for="notes" class="block text-sm font-medium text-slate-700">Notes</label>
+            <textarea
+              id="notes"
+              rows="3"
+              formControlName="notes"
+              class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              [ngClass]="invalidFieldClass(form.controls.notes)"
+            ></textarea>
+            @if (getLoanFieldError('notes', form.controls.notes); as message) {
+              <p class="mt-1 text-xs text-red-600">{{ message }}</p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+            <button
+              type="submit"
+              [disabled]="loading()"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {{ loading() ? 'Saving...' : (isEditMode() ? 'Save changes' : 'Create loan') }}
+            </button>
+
+            <a
+              [routerLink]="isEditMode() && loanId() ? ['/loans', loanId()] : ['/loans']"
+              class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Cancel
+            </a>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+</div>
